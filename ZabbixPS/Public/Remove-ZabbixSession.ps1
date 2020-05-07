@@ -1,51 +1,96 @@
 Function Remove-ZabbixSession
 {
-	<# 
-	.Synopsis
-		Remove Zabbix session
-	.Description
-		Remove Zabbix session
-	.Example
-		Disconnect-Zabbix
-		Disconnect from Zabbix server
-	.Example
-		Remove-Zabbixsession
-		Disconnect from Zabbix server
-	#>
-	
-	[CmdletBinding()]
-	[Alias("Disconnect-Zabbix", "rzsess", "dzsess")]
-	Param (
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)][string]$jsonrpc = ($global:zabSessionParams.jsonrpc),
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)][string]$session = ($global:zabSessionParams.session),
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)][string]$id = ($global:zabSessionParams.id),
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)][string]$URL = ($global:zabSessionParams.url)
-	)
+    <#
+    .SYNOPSIS
 
-	# if (!$psboundparameters.count -and !$global:zabSessionParams) {Get-Help -ex $PSCmdlet.MyInvocation.MyCommand.Name | out-string | Remove-EmptyLines; return}
-	if (!$psboundparameters.count -and !$global:zabSessionParams) { Write-Host "`nDisconnected from Zabbix Server!`n" -f red; return }
+    Removes a Zabbix session.
 
-	if (Get-ZabbixSession)
- {
-		$Body = @{
-			method  = "user.logout"
-			jsonrpc = $jsonrpc
-			params  = @{ }
-			id      = $id
-			auth    = $session
-		}
-		
-		$BodyJSON = ConvertTo-Json $Body
-		write-verbose $BodyJSON
-		
-		$a = Invoke-RestMethod "$URL/api_jsonrpc.php" -ContentType "application/json" -Body $BodyJSON -Method Post
-		if ($a.result) { $a.result | out-null } else { $a.error }
-		
-		$global:zabSession = ""
-		$global:zabSessionParams = ""
-		
-		if (!(Get-ZabbixVersion)) { }
-	}
-	else { Get-ZabbixSession }
+    .DESCRIPTION
+
+    Removes a Zabbix session.
+    If the session is saved, it will be removed from the saved sessions as well.
+
+    .PARAMETER Id
+
+    Session id.
+
+    .PARAMETER Path
+
+    The path where module data will be stored, defaults to $Script:ZabbixModuleDataPath.
+
+    .INPUTS
+
+    PSObject. Get-ZabbixSession
+
+    .OUTPUTS
+
+    None. Does not supply output.
+
+    .EXAMPLE
+
+    Deletes a Zabbix session with the id of '2'.
+
+    Remove-ZabbixSession -Id 2
+
+    .EXAMPLE
+
+    Deletes all AP sessions in memory and stored on disk.
+
+    Remove-ZabbixSession
+
+    .LINK
+
+    Zabbix documentation:
+    https://www.zabbix.com/documentation/4.2/manual/api
+
+    New-ZabbixSession
+    Get-ZabbixSession
+    Save-ZabbixSession
+    Initialize-ZabbixSession
+    #>
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory,
+            ValueFromPipelineByPropertyName)]
+        [int]
+        $Id,
+
+        [Parameter()]
+        [string]
+        $Path = $Script:ZabbixModuleDataPath
+    )
+    begin
+    {
+
+    }
+    process
+    {
+        $sessions = Get-ZabbixSession -Id $Id
+        foreach ($session in $sessions)
+        {
+            if ($session.Saved -eq $true)
+            {
+                $newData = @{SessionData = @() }
+                $data = Get-Content -Path $Path -Raw | ConvertFrom-Json
+                foreach ($_data in $data.SessionData)
+                {
+                    if ($_data.Id -eq $session.Id)
+                    {
+                        Continue
+                    }
+                    else
+                    {
+                        $newData.SessionData += $_data
+                    }
+                }
+                $newData | ConvertTo-Json -Depth 5 | Out-File -FilePath $Path
+            }
+            $Global:_ZabbixSessions = $Global:_ZabbixSessions | Where-Object { $PSItem.Id -ne $session.Id }
+        }
+    }
+    end
+    {
+
+    }
 }
-

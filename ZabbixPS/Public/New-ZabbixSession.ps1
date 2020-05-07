@@ -11,7 +11,7 @@ Function New-ZabbixSession
     Use Save-ZabbixSession to persist the session data to disk.
     Save the session to a variable to pass the session to other functions.
 
-    .PARAMETER SessionName
+    .PARAMETER Name
 
     The friendly name of the session.
 
@@ -31,37 +31,44 @@ Function New-ZabbixSession
 
     Specifie a user account that has permission to use the proxy server that is specified by the -Proxy parameter. The default is the current user.
 
+    .PARAMETER ApiVersion
+
+    Version of the api to use, defaults to 2.0.
+
     .PARAMETER Path
 
-    The path where module data will be stored, defaults to $Script:ModuleDataPath.
-
-    .LINK
-
-    Save-ZabbixSession
-    Remove-ZabbixSession
-
-    Zabbix documentation:
-    https://www.zabbix.com/documentation/4.2/manual/api
+    The path where module data will be stored, defaults to $Script:ZabbixModuleDataPath.
 
     .INPUTS
 
-    None, does not support pipeline.
+    None. Does not support pipeline.
 
     .OUTPUTS
 
-    PSObject, Zabbix session
+    PSObject. Zabbix session
 
     .EXAMPLE
 
     Creates a session with the name of 'myZabbixInstance' returning it to the $session variable.
 
+    $session = New-ZabbixSession -Uri 'http://myCompany/zabbix/api_jsonrpc.php' -Credential $creds -Name myZabbixInstance
+
+    .LINK
+
+    Zabbix documentation:
+    https://www.zabbix.com/documentation/4.2/manual/api
+
+    Remove-ZabbixSession
+    Get-ZabbixSession
+    Save-ZabbixSession
+    Initialize-ZabbixSession
     #>
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter(Mandatory)]
         [string]
-        $SessionName,
+        $Name,
 
         [Parameter(Mandatory)]
         [uri]
@@ -81,30 +88,43 @@ Function New-ZabbixSession
 
         [Parameter()]
         [string]
-        $Path = $Script:ModuleDataPath
+        $ApiVersion = '2.0',
+
+        [Parameter()]
+        [string]
+        $Path = $Script:ZabbixModuleDataPath
     )
-    Process
+    begin
+    {
+
+    }
+    process
     {
         [int] $_sessionIdcount = (Get-ZabbixSession | Sort-Object -Property 'Id' | Select-Object -Last 1 -ExpandProperty 'Id') + 1
         $_session = New-Object -TypeName PSCustomObject -Property @{
-            Uri         = $Uri
-            SessionName = $SessionName
-            Id          = $_sessionIdcount
+            Uri        = $Uri
+            Name       = $Name
+            Id         = $_sessionIdcount
             Credential = $Credential
+            ApiVersion = $ApiVersion
         }
-        If ($Proxy)
+        if ($Proxy)
         {
             $_session | Add-Member -NotePropertyName 'Proxy' -NotePropertyValue $Proxy
         }
-        If ($ProxyCredential)
+        if ($ProxyCredential)
         {
             $_session | Add-Member -NotePropertyName 'ProxyCredential' -NotePropertyValue $ProxyCredential
         }
-        If ($null -eq $Global:_ZabbixSessions)
+        if ($null -eq $Global:_ZabbixSessions)
         {
             $Global:_ZabbixSessions = @()
         }
         $Global:_ZabbixSessions += $_session
-        Return $_session
+        return $_session
+    }
+    end
+    {
+
     }
 }
