@@ -39,11 +39,6 @@ Function Initialize-ZabbixSession
     (
         [Parameter(Mandatory,
             ParameterSetName = 'ByName')]
-        [string]
-        $Name,
-
-        [Parameter(Mandatory,
-            ParameterSetName = 'ByName')]
         [uri]
         $Uri,
 
@@ -77,7 +72,7 @@ Function Initialize-ZabbixSession
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-APSession
+            $currentSession = $Session | Get-ZabbixSession
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri

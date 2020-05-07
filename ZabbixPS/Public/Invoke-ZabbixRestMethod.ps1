@@ -108,7 +108,8 @@ function Invoke-ZabbixRestMethod
         {
             $invokeRestMethodSplat.OutFile = $Path
         }
-        $results = Invoke-RestMethod @authenticatedRestMethodSplat
+        Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Invoking Zabbix rest method: [$Uri]"
+        $results = Invoke-RestMethod @invokeRestMethodSplat
         return $results
     }
 
