@@ -82,7 +82,6 @@ Function Initialize-ZabbixSession
                 $ApiVersion = $currentSession.ApiVersion
             }
         }
-
     }
     process
     {
@@ -98,6 +97,7 @@ Function Initialize-ZabbixSession
                 id      = 1
                 auth    = $null
             }
+            ErrorAction = 'Stop'
         }
         if ($Proxy)
         {
@@ -111,7 +111,11 @@ Function Initialize-ZabbixSession
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        $results = Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        If($results.result)
+        {
+           $results.result
+        }
     }
     end
     {
