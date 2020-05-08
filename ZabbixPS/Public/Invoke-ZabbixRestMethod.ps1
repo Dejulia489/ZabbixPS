@@ -104,13 +104,13 @@ function Invoke-ZabbixRestMethod
                 $initializeZabbixSessionSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        $body.auth = Initialize-ZabbixSession @initializeZabbixSessionSplat
+        $Body.auth = Initialize-ZabbixSession @initializeZabbixSessionSplat
         $invokeRestMethodSplat = @{
             ContentType     = 'application/json'
             Method          = 'POST'
             UseBasicParsing = $true
             Uri             = $Uri.AbsoluteUri
-            Body            = $_body | ConvertTo-Json -Depth 20
+            Body            = $Body | ConvertTo-Json -Depth 20
         }
         if ($Proxy)
         {
@@ -129,7 +129,15 @@ function Invoke-ZabbixRestMethod
             $invokeRestMethodSplat.OutFile = $Path
         }
         Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Invoking Zabbix rest method: [$Uri]"
-        return Invoke-RestMethod @invokeRestMethodSplat
+        $results = Invoke-RestMethod @invokeRestMethodSplat
+        if ($results.result)
+        {
+            return $results.result
+        }
+        elseif ($results.error)
+        {
+            Write-Error -Exception $results.error.message -Message $results.error.data -ErrorId $results.error.code
+        }
     }
 
     end

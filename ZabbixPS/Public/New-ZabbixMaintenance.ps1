@@ -251,11 +251,11 @@ function New-ZabbixMaintenance
         }
         if ($GroupId)
         {
-            $body.params.GroupIds = $GroupId
+            $body.params.groupids = $GroupId
         }
         if ($HostId)
         {
-            $body.params.HostIds = $HostId
+            $body.params.hostids = $HostId
         }
         if ($Tags)
         {
@@ -280,11 +280,7 @@ function New-ZabbixMaintenance
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        $results = Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
-        if ($results)
-        {
-            $results
-        }
+        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
     }
 
     end
