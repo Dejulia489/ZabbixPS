@@ -2,6 +2,8 @@
 
 A PowerShell module that makes interfacing with Zabbix a bit easier.
 
+[![Build Status](https://dev.azure.com/michaeldejulia/PowerShell%20Modules/_apis/build/status/ZabbixPS?branchName=master)](https://dev.azure.com/michaeldejulia/PowerShell%20Modules/_build/latest?definitionId=12&branchName=master)
+
 ## Building
 
 Run the build script in the root of the project to install dependent modules and start the build
