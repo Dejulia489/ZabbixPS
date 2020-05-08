@@ -42,7 +42,7 @@ stages:
           deploy:
             steps:
               - task: PowerShell@2
-                name: Publish Module to PSGallery
+                displayName: Publish Module to PSGallery
                 inputs:
                   targetType: 'inline'
                   script: |
