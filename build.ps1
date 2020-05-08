@@ -33,7 +33,7 @@ Foreach ($module in $modules)
     Catch
     {
         Write-Host "[$($MyInvocation.MyCommand.Name)]: Installing: [$($module.Name)] - [$($module.Version)] from [$($module.Repository)]"
-        Install-Module -Name $module.Name -RequiredVersion $module.Version -Repository $module.Repository -Force -AllowClobber -Scope $moduleInstallScope
+        Install-Module -Name $module.Name -RequiredVersion $module.Version -Repository $module.Repository -Force -AllowClobber -Scope $moduleInstallScope -SkipPublisherCheck
     }
     Import-Module -Name $module.Name -RequiredVersion "$($module.Version)" -Force
 }
