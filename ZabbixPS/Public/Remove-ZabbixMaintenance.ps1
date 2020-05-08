@@ -39,7 +39,7 @@ function Remove-ZabbixMaintenance
 
     .OUTPUTS
 
-    None, does not support output.
+    PSObject, maintenance ids that were removed.
 
     .EXAMPLE
 

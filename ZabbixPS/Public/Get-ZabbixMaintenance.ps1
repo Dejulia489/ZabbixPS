@@ -81,7 +81,7 @@ function Get-ZabbixMaintenance
         $Name,
 
         [Parameter()]
-        [int]
+        [string]
         $Id
     )
 
@@ -113,11 +113,17 @@ function Get-ZabbixMaintenance
                 selectGroups      = "extend"
                 selectHosts       = "extend"
                 selectTimeperiods = "extend"
-                filter            = @{
-                    name = $Name
-                }
-                maintenanceids    = $Id
             }
+        }
+        if ($Name)
+        {
+            $body.params.filter = @{
+                name = $Name
+            }
+        }
+        if ($Id)
+        {
+            $body.params.maintenanceids = $Id
         }
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
