@@ -229,22 +229,22 @@ function New-ZabbixMaintenance
             id      = 1
 
             params  = @{
-                name             = $MaintenanceName
-                description      = $MaintenanceDescription
+                name             = $Name
+                description      = $Description
                 active_since     = $ActiveSince
                 active_till      = $ActiveTill
-                maintenance_type = $MaintenanceType
+                maintenance_type = $Type
                 timeperiods      = @(
                     @{
-                        timeperiod_type = $TimeperiodType
-                        start_date      = $TimeperiodStartDate
-                        period          = $TimeperiodPeriod
+                        timeperiod_type = $TpType
+                        start_date      = $TpStartDate
+                        period          = $TpPeriod
 
-                        every           = $TimeperiodEvery
-                        start_time      = $TimeperiodStartTime
-                        month           = $TimeperiodMonth
-                        dayofweek       = $TimeperiodDayOfWeek
-                        day             = $TimeperiodDay
+                        every           = $TpEvery
+                        start_time      = $TpStartTime
+                        month           = $TpMonth
+                        dayofweek       = $TpDayOfWeek
+                        day             = $TpDay
                     }
                 )
             }
