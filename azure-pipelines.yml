@@ -12,6 +12,10 @@ resources:
 - repo: self
 pool:
   vmImage: 'windows-latest'
+trigger:
+  paths:
+    exclude:
+      - ./README.md
 
 stages:
   - stage:
