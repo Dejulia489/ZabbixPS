@@ -120,7 +120,7 @@ function New-ZabbixMaintenance
     https://www.zabbix.com/documentation/4.2/manual/api/reference/maintenance/create
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
-    Param
+    param
     (
         [Parameter(Mandatory,
             ParameterSetName = 'ByCredential')]
@@ -162,7 +162,7 @@ function New-ZabbixMaintenance
 
         [Parameter()]
         [int]
-        $Type,
+        $Type = 0,
 
         [Parameter()]
         [datetime]
@@ -178,14 +178,14 @@ function New-ZabbixMaintenance
 
         [Parameter()]
         [int]
-        $TpType,
+        $TpType = 0,
 
         [Parameter()]
         [int]
         $TpStartTime,
 
         [Parameter()]
-        [int]
+        [datetime]
         $TpStartDate,
 
         [Parameter()]
@@ -231,13 +231,13 @@ function New-ZabbixMaintenance
             params  = @{
                 name             = $Name
                 description      = $Description
-                active_since     = $ActiveSince
-                active_till      = $ActiveTill
+                active_since     = [Math]::Floor([decimal](Get-Date($ActiveSince).ToUniversalTime()-uformat "%s"))
+                active_till      = [Math]::Floor([decimal](Get-Date($ActiveTill).ToUniversalTime()-uformat "%s"))
                 maintenance_type = $Type
                 timeperiods      = @(
                     @{
                         timeperiod_type = $TpType
-                        start_date      = $TpStartDate
+                        start_date      = [Math]::Floor([decimal](Get-Date($TpStartDate).ToUniversalTime()-uformat "%s"))
                         period          = $TpPeriod
 
                         every           = $TpEvery
@@ -249,22 +249,23 @@ function New-ZabbixMaintenance
                 )
             }
         }
-        If($GroupId)
+        if ($GroupId)
         {
             $body.params.GroupIds = $GroupId
         }
-        If($HostId)
+        if ($HostId)
         {
             $body.params.HostIds = $HostId
         }
-        If($Tags)
+        if ($Tags)
         {
             $body.params.tags = (Format-ZabbixTags -Tags $Tags)
         }
         $invokeZabbixRestMethodSplat = @{
+            Body        = $body
             Uri         = $Uri
             Credential  = $Credential
-            Body        = $body
+            ApiVersion  = $ApiVersion
             ErrorAction = 'Stop'
         }
         if ($Proxy)
@@ -280,7 +281,7 @@ function New-ZabbixMaintenance
             }
         }
         $results = Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
-        If ($results)
+        if ($results)
         {
             $results
         }

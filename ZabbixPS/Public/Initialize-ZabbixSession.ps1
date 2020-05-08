@@ -66,7 +66,11 @@ Function Initialize-ZabbixSession
 
         [Parameter()]
         [string]
-        $Path = $Script:ZabbixModuleDataPath
+        $Path = $Script:ZabbixModuleDataPath,
+
+        [Parameter()]
+        [switch]
+        $Force
     )
     begin
     {
@@ -85,9 +89,13 @@ Function Initialize-ZabbixSession
     }
     process
     {
-        $invokeZabbixRestMethodSplat = @{
-            Uri  = $Uri
-            Body = @{
+        if ($Global:_ZabbixAuthenticationToken -and (-not($Force.IsPresent)))
+        {
+            return $Global:_ZabbixAuthenticationToken
+        }
+        else
+        {
+            $body = @{
                 jsonrpc = $ApiVersion
                 method  = 'user.login'
                 params  = @{
@@ -97,24 +105,32 @@ Function Initialize-ZabbixSession
                 id      = 1
                 auth    = $null
             }
-            ErrorAction = 'Stop'
-        }
-        if ($Proxy)
-        {
-            $invokeZabbixRestMethodSplat.Proxy = $Proxy
-            if ($ProxyCredential)
-            {
-                $invokeZabbixRestMethodSplat.ProxyCredential = $ProxyCredential
+            $invokeRestMethodSplat = @{
+                ContentType     = 'application/json'
+                Method          = 'POST'
+                UseBasicParsing = $true
+                Uri             = $Uri.AbsoluteUri
+                Body            = $body | ConvertTo-Json -Depth 20
             }
-            else
+            if ($Proxy)
             {
-                $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
+                $invokeRestMethodSplat.Proxy = $Proxy
+                if ($ProxyCredential)
+                {
+                    $invokeRestMethodSplat.ProxyCredential = $ProxyCredential
+                }
+                else
+                {
+                    $invokeRestMethodSplat.ProxyUseDefaultCredentials = $true
+                }
             }
-        }
-        $results = Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
-        If($results.result)
-        {
-            $Global:_ZabbixAuthenticationToken = $results.result
+            Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Requesting an authentication token"
+            $results = Invoke-RestMethod @invokeRestMethodSplat
+            If ($results.result)
+            {
+                $Global:_ZabbixAuthenticationToken = $results.result
+                return $Global:_ZabbixAuthenticationToken
+            }
         }
     }
     end

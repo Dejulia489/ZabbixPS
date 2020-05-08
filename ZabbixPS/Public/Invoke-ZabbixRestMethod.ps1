@@ -82,35 +82,29 @@ function Invoke-ZabbixRestMethod
 
     begin
     {
-        If ($Credential)
-        {
-            If(-not($Global:_ZabbixAuthenticationToken))
-            {
-                $initializeZabbixSessionSplat = @{
-                    Uri        = $Uri
-                    Credential = $Credential
-                    ApiVersion = $ApiVersion
-                }
-                if ($Proxy)
-                {
-                    $initializeZabbixSessionSplat.Proxy = $Proxy
-                    if ($ProxyCredential)
-                    {
-                        $initializeZabbixSessionSplat.ProxyCredential = $ProxyCredential
-                    }
-                    else
-                    {
-                        $initializeZabbixSessionSplat.ProxyUseDefaultCredentials = $true
-                    }
-                }
-                Initialize-ZabbixSession @initializeZabbixSessionSplat
-            }
-        }
+
     }
 
     process
     {
-        $_body = $body.auth = $Global:_ZabbixAuthenticationToken
+        $initializeZabbixSessionSplat = @{
+            Uri        = $Uri
+            Credential = $Credential
+            ApiVersion = $ApiVersion
+        }
+        if ($Proxy)
+        {
+            $initializeZabbixSessionSplat.Proxy = $Proxy
+            if ($ProxyCredential)
+            {
+                $initializeZabbixSessionSplat.ProxyCredential = $ProxyCredential
+            }
+            else
+            {
+                $initializeZabbixSessionSplat.ProxyUseDefaultCredentials = $true
+            }
+        }
+        $body.auth = Initialize-ZabbixSession @initializeZabbixSessionSplat
         $invokeRestMethodSplat = @{
             ContentType     = 'application/json'
             Method          = 'POST'
@@ -135,8 +129,7 @@ function Invoke-ZabbixRestMethod
             $invokeRestMethodSplat.OutFile = $Path
         }
         Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Invoking Zabbix rest method: [$Uri]"
-        $results = Invoke-RestMethod @invokeRestMethodSplat
-        return $results
+        return Invoke-RestMethod @invokeRestMethodSplat
     }
 
     end
