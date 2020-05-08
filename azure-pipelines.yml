@@ -4,8 +4,8 @@
 name: 0.0.$(rev:r)
 resources:
 - repo: self
-queue:
-  name: Hosted Windows Container
+pool:
+  vmImage: 'windows-latest'
 steps:
 - powershell: ./ build.ps1
   displayName: 'PowerShell Script'
