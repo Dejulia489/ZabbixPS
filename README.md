@@ -2,7 +2,13 @@
 
 A PowerShell module that makes interfacing with Zabbix a bit easier.
 
-[![Build Status](https://dev.azure.com/michaeldejulia/ZabbixPS/_apis/build/status/ZabbixPS?branchName=master)](https://dev.azure.com/michaeldejulia/ZabbixPS/_build/latest?definitionId=12&branchName=master)
+master:
+
+[![Build Status](https://dev.azure.com/michaeldejulia/ZabbixPS/_apis/build/status/ZabbixPS?branchName=master&stageName=Build)](https://dev.azure.com/michaeldejulia/ZabbixPS/_build/latest?definitionId=12&branchName=master)
+
+marketplace:
+
+[![Build Status](https://dev.azure.com/michaeldejulia/ZabbixPS/_apis/build/status/ZabbixPS?branchName=master&stageName=Prod)](https://dev.azure.com/michaeldejulia/ZabbixPS/_build/latest?definitionId=12&branchName=master)
 
 ## Building
 
