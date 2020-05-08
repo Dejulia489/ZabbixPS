@@ -14,23 +14,17 @@ Run the build script in the root of the project to install dependent modules and
 
 Run the following within the root of the project.
 
-```Powershell
-Invoke-Build
-```
+    Invoke-Build
 
 ### Cleaning the Output
 
-```Powershell
-Invoke-Build Clean
-```
+    Invoke-Build Clean
 
 ## Installing the Module
 
 Install the module
 
-```Powershell
-Install-Module 'ZabbixPS' -Repository 'PSGallery'
-```
+    Install-Module 'ZabbixPS' -Repository 'PSGallery'
 
 ##### Authors
 
