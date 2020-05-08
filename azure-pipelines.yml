@@ -8,16 +8,16 @@ pool:
   vmImage: 'windows-latest'
 
 stages:
-  - stage: 
+  - stage:
     displayName: Build
     jobs:
       - job:
         displayName: Build
         steps:
         - powershell: ./build.ps1
-          displayName: 'PowerShell Script'
+          displayName: 'Build Module'
         - task: PublishBuildArtifacts@1
-          displayName: 'Publish Artifact: Artifacts'
+          displayName: 'Publish Artifact'
           inputs:
             PathtoPublish: Output
             ArtifactName: Artifacts
@@ -40,7 +40,7 @@ stages:
           deploy:
             steps:
               - task: PowerShell@2
-                name: PublishPowerShellModuleNexus
+                name: Publish Module - PSGallery
                 inputs:
                   targetType: 'inline'
                   script: |
