@@ -6,24 +6,42 @@ resources:
 - repo: self
 pool:
   vmImage: 'windows-latest'
-steps:
-- powershell: ./build.ps1
-  displayName: 'PowerShell Script'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: Artifacts'
-  inputs:
-    PathtoPublish: Output
-
-    ArtifactName: Artifacts
-
-- task: PublishTestResults@2
-  displayName: 'Publish Test Results **\TestResults*.xml'
-  inputs:
-    testResultsFormat: NUnit
-
-    testResultsFiles: '**\TestResults*.xml'
-
-    mergeTestResults: true
-
-    testRunTitle: '$(Build.BuildNumber)'
+stages:
+  - stage: 
+    displayName: Build
+    jobs:
+      - job:
+        displayName: Build
+        steps:
+        - powershell: ./build.ps1
+          displayName: 'PowerShell Script'
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Artifact: Artifacts'
+          inputs:
+            PathtoPublish: Output
+            ArtifactName: Artifacts
+        - task: PublishTestResults@2
+          displayName: 'Publish Test Results **\TestResults*.xml'
+          inputs:
+            testResultsFormat: NUnit
+            testResultsFiles: '**\TestResults*.xml'
+            mergeTestResults: true
+            testRunTitle: '$(Build.BuildNumber)'
+  - stage:
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: Prod
+    jobs:
+    - deployment:
+      displayName: Marketplace
+      environment: Marketplace
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: PowerShell@2
+                name: PublishPowerShellModuleNexus
+                inputs:
+                  targetType: 'inline'
+                  script: |
+                    Publish-Module -Path ".\ZabbixPS" -Repository 'PSGallery' -NuGetApiKey $(PSGalleryApiKey)
