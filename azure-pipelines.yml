@@ -6,6 +6,8 @@ resources:
 - repo: self
 pool:
   vmImage: 'windows-latest'
+variables:
+  PSGALLERY_APIKEY:PSGalleryApiKey
 
 stages:
   - stage:
@@ -44,4 +46,4 @@ stages:
                 inputs:
                   targetType: 'inline'
                   script: |
-                    Publish-Module -Path ".\ZabbixPS" -Repository 'PSGallery' -NuGetApiKey $env:PSGALLERYAPIKEY
+                    Publish-Module -Path ".\ZabbixPS" -Repository 'PSGallery' -NuGetApiKey $env:PSGALLERY_APIKEY
