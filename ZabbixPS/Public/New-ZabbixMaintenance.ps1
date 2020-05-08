@@ -63,7 +63,8 @@ function New-ZabbixMaintenance
 
     .PARAMETER Tags
 
-    The host tags.
+    A comma sperated list of tags.
+    'Key1:Value1', 'Key2:Value2'
 
 	.PARAMETER TpType
 
@@ -153,11 +154,11 @@ function New-ZabbixMaintenance
 
         [Parameter()]
         [string[]]
-        $GroupID,
+        $GroupId,
 
         [Parameter()]
         [string[]]
-        $HostID,
+        $HostId,
 
         [Parameter()]
         [int]
@@ -206,90 +207,82 @@ function New-ZabbixMaintenance
 
     begin
     {
-        If ($PSCmdlet.ParameterSetName -eq 'BySession')
+        if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
             $currentSession = $Session | Get-ZabbixSession
-            If ($currentSession)
+            if ($currentSession)
             {
                 $Uri = $currentSession.Uri
                 $Credential = $currentSession.Credential
                 $Proxy = $currentSession.Proxy
                 $ProxyCredential = $currentSession.ProxyCredential
+                $ApiVersion = $currentSession.ApiVersion
             }
         }
     }
 
     process
     {
-        $getAPBuildDefinitionListSplat = @{
-            Collection = $Collection
-            Instance   = $Instance
-            Project    = $Project
-            ApiVersion = $ApiVersion
-            Name       = $Name
-        }
-        If ($Credential)
-        {
-            $getAPBuildDefinitionListSplat.Credential = $Credential
-        }
-        If ($PersonalAccessToken)
-        {
-            $getAPBuildDefinitionListSplat.PersonalAccessToken = $PersonalAccessToken
-        }
-        If ($Proxy)
-        {
-            $getAPBuildDefinitionListSplat.Proxy = $Proxy
-        }
-        If ($ProxyCredential)
-        {
-            $getAPBuildDefinitionListSplat.ProxyCredential = $ProxyCredential
-        }
-        If ($Path)
-        {
-            $getAPBuildDefinitionListSplat.Path = $Path
-        }
-        $definition = Get-ZabbixBuildDefinitionList @getAPBuildDefinitionListSplat
-        Foreach ($_definition in $definition)
-        {
-            $body = @{
-                definition = $_definition
+        $body = @{
+            method  = 'maintenance.create'
+            jsonrpc = $ApiVersion
+            id      = 1
+
+            params  = @{
+                name             = $MaintenanceName
+                description      = $MaintenanceDescription
+                active_since     = $ActiveSince
+                active_till      = $ActiveTill
+                maintenance_type = $MaintenanceType
+                timeperiods      = @(
+                    @{
+                        timeperiod_type = $TimeperiodType
+                        start_date      = $TimeperiodStartDate
+                        period          = $TimeperiodPeriod
+
+                        every           = $TimeperiodEvery
+                        start_time      = $TimeperiodStartTime
+                        month           = $TimeperiodMonth
+                        dayofweek       = $TimeperiodDayOfWeek
+                        day             = $TimeperiodDay
+                    }
+                )
             }
-            If ($SourceBranch)
+        }
+        If($GroupId)
+        {
+            $body.params.GroupIds = $GroupId
+        }
+        If($HostId)
+        {
+            $body.params.HostIds = $HostId
+        }
+        If($Tags)
+        {
+            $body.params.tags = (Format-ZabbixTags -Tags $Tags)
+        }
+        $invokeZabbixRestMethodSplat = @{
+            Uri         = $Uri
+            Credential  = $Credential
+            Body        = $body
+            ErrorAction = 'Stop'
+        }
+        if ($Proxy)
+        {
+            $invokeZabbixRestMethodSplat.Proxy = $Proxy
+            if ($ProxyCredential)
             {
-                $body.SourceBranch = $SourceBranch
-            }
-            If ($Parameters)
-            {
-                $body.parameters = ($Parameters | Convertto-Json -Compress)
-            }
-            $apiEndpoint = Get-ZabbixApiEndpoint -ZabbixiType 'build-builds'
-            $setAPUriSplat = @{
-                Collection  = $Collection
-                Instance    = $Instance
-                Project     = $Project
-                ApiVersion  = $ApiVersion
-                ApiEndpoint = $apiEndpoint
-            }
-            [uri] $uri = Set-ZabbixUri @setAPUriSplat
-            $invokeAPRestMethodSplat = @{
-                Method              = 'POST'
-                Uri                 = $uri
-                Credential          = $Credential
-                PersonalAccessToken = $PersonalAccessToken
-                Body                = $body
-                ContentType         = 'application/json'
-                Proxy               = $Proxy
-                ProxyCredential     = $ProxyCredential
-            }
-            $results = Invoke-ZabbixRestMethod @invokeAPRestMethodSplat
-            If ($results.value)
-            {
-                $results.value
+                $invokeZabbixRestMethodSplat.ProxyCredential = $ProxyCredential
             }
             else
             {
-                $results
+                $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
+        }
+        $results = Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        If ($results)
+        {
+            $results
         }
     }
 

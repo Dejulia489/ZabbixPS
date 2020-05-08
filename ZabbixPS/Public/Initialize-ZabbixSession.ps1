@@ -19,7 +19,7 @@ Function Initialize-ZabbixSession
 
     .OUTPUTS
 
-    PSObject. Zabbix session
+    None. Does not support output.
 
     .EXAMPLE
 
@@ -114,7 +114,7 @@ Function Initialize-ZabbixSession
         $results = Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
         If($results.result)
         {
-           $results.result
+            $Global:_ZabbixAuthenticationToken = $results.result
         }
     }
     end

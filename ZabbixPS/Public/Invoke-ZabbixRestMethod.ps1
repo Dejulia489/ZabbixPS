@@ -51,7 +51,7 @@ function Invoke-ZabbixRestMethod
     [CmdletBinding()]
     Param
     (
-        [Parameter()]
+        [Parameter(Mandatory)]
         [psobject]
         $Body,
 
@@ -59,7 +59,7 @@ function Invoke-ZabbixRestMethod
         [uri]
         $Uri,
 
-        [Parameter()]
+        [Parameter(Mandatory)]
         [pscredential]
         $Credential,
 
@@ -71,6 +71,10 @@ function Invoke-ZabbixRestMethod
         [pscredential]
         $ProxyCredential,
 
+        [Parameter(Mandatory)]
+        [string]
+        $ApiVersion,
+
         [Parameter()]
         [string]
         $Path
@@ -78,19 +82,41 @@ function Invoke-ZabbixRestMethod
 
     begin
     {
+        If ($Credential)
+        {
+            If(-not($Global:_ZabbixAuthenticationToken))
+            {
+                $initializeZabbixSessionSplat = @{
+                    Uri        = $Uri
+                    Credential = $Credential
+                    ApiVersion = $ApiVersion
+                }
+                if ($Proxy)
+                {
+                    $initializeZabbixSessionSplat.Proxy = $Proxy
+                    if ($ProxyCredential)
+                    {
+                        $initializeZabbixSessionSplat.ProxyCredential = $ProxyCredential
+                    }
+                    else
+                    {
+                        $initializeZabbixSessionSplat.ProxyUseDefaultCredentials = $true
+                    }
+                }
+                Initialize-ZabbixSession @initializeZabbixSessionSplat
+            }
+        }
     }
 
     process
     {
+        $_body = $body.auth = $Global:_ZabbixAuthenticationToken
         $invokeRestMethodSplat = @{
             ContentType     = 'application/json'
             Method          = 'POST'
             UseBasicParsing = $true
             Uri             = $Uri.AbsoluteUri
-        }
-        if ($Body)
-        {
-            $invokeRestMethodSplat.Body = $Body | ConvertTo-Json -Depth 20
+            Body            = $_body | ConvertTo-Json -Depth 20
         }
         if ($Proxy)
         {
