@@ -7,7 +7,7 @@ resources:
 pool:
   vmImage: 'windows-latest'
 steps:
-- powershell: ./ build.ps1
+- powershell: ./build.ps1
   displayName: 'PowerShell Script'
 
 - task: PublishBuildArtifacts@1
@@ -16,7 +16,6 @@ steps:
     PathtoPublish: Output
 
     ArtifactName: Artifacts
-
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results **\TestResults*.xml'
@@ -28,5 +27,3 @@ steps:
     mergeTestResults: true
 
     testRunTitle: '$(Build.BuildNumber)'
-
-

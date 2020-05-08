@@ -32,20 +32,20 @@ Copyright = '(c) 2020 Michael Dejulia. All rights reserved.'
 # Description of the functionality provided by this module
 Description = 'Functions for interacting with Zabbix'
 
-# Minimum version of the Windows PowerShell engine required by this module
+# Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
 
-# Name of the Windows PowerShell host required by this module
+# Name of the PowerShell host required by this module
 # PowerShellHostName = ''
 
-# Minimum version of the Windows PowerShell host required by this module
+# Minimum version of the PowerShell host required by this module
 # PowerShellHostVersion = ''
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # DotNetFrameworkVersion = ''
 
 # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# CLRVersion = ''
+# ClrVersion = ''
 
 # Processor architecture (None, X86, Amd64) required by this module
 # ProcessorArchitecture = ''
@@ -69,36 +69,13 @@ Description = 'Functions for interacting with Zabbix'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'ConvertFrom-Epoch', 'ConvertTo-Epoch', 'Copy-ZabbixHost', 
-               'Export-ZabbixConfiguration', 'Format-ZabbixTags', 'Get-ZabbixAction', 
-               'Get-ZabbixAlert', 'Get-ZabbixApplication', 'Get-ZabbixDBSize', 
-               'Get-ZabbixEvent', 'Get-ZabbixGraph', 'Get-ZabbixHelp', 
-               'Get-ZabbixHistory', 'Get-ZabbixHost', 'Get-ZabbixHostGroup', 
-               'Get-ZabbixHostInterface', 'Get-ZabbixHostInventory', 
-               'Get-ZabbixHttpTest', 'Get-ZabbixItem', 'Get-ZabbixMaintenance', 
-               'Get-ZabbixProblem', 'Get-ZabbixScreen', 'Get-ZabbixSession', 
-               'Get-ZabbixTemplate', 'Get-ZabbixTrigger', 'Get-ZabbixUser', 
-               'Get-ZabbixUserGroup', 'Get-ZabbixVersion', 
-               'Import-ZabbixConfiguration', 'Initialize-ZabbixSession', 
-               'Invoke-ZabbixRestMethod', 'New-ZabbixApplication', 'New-ZabbixHost', 
-               'New-ZabbixHostGroup', 'New-ZabbixHostInterface', 
-               'New-ZabbixHttpTest', 'New-ZabbixMaintenance', 
-               'New-ZabbixMaintenance_old', 'New-ZabbixMediaType', 
-               'New-ZabbixSession', 'New-ZabbixTemplate', 'New-ZabbixTrigger', 
-               'New-ZabbixUser', 'New-ZabbixUserGroup', 'Remove-EmptyLines', 
-               'Remove-ZabbixApplication', 'Remove-ZabbixHost', 
-               'Remove-ZabbixHostGroup', 'Remove-ZabbixHostInterface', 
-               'Remove-ZabbixHttpTest', 'Remove-ZabbixItem', 
-               'Remove-ZabbixMaintenance', 'Remove-ZabbixMediaType', 
-               'Remove-ZabbixSession', 'Remove-ZabbixTemplate', 'Remove-ZabbixUser', 
-               'Remove-ZabbixUserGroup', 'Save-ZabbixGraph', 'Save-ZabbixSession', 
-               'Set-ZabbixAction', 'Set-ZabbixApplication', 'Set-ZabbixEvent', 
-               'Set-ZabbixHost', 'Set-ZabbixHostGroup', 
-               'Set-ZabbixHostGroupAddHosts', 'Set-ZabbixHostGroupRemoveHosts', 
-               'Set-ZabbixHostInterface', 'Set-ZabbixHostInventory', 
-               'Set-ZabbixHttpTest', 'Set-ZabbixItem', 'Set-ZabbixMaintenance', 
-               'Set-ZabbixMediaType', 'Set-ZabbixTemplate', 'Set-ZabbixTrigger', 
-               'Set-ZabbixUserGroup'
+FunctionsToExport = 'Format-ZabbixTags', 'Get-ZabbixAction', 'Get-ZabbixAlert', 
+               'Get-ZabbixApplication', 'Get-ZabbixEvent', 'Get-ZabbixGraph', 
+               'Get-ZabbixHistory', 'Get-ZabbixMaintenance', 'Get-ZabbixSession', 
+               'Initialize-ZabbixSession', 'New-ZabbixMaintenance', 
+               'New-ZabbixSession', 'Remove-ZabbixAction', 
+               'Remove-ZabbixMaintenance', 'Remove-ZabbixSession', 
+               'Save-ZabbixSession'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

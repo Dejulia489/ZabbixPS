@@ -9,9 +9,37 @@ Function Initialize-ZabbixSession
 
     Logs into the Zabbix instance and returns an authentication token.
 
+    .PARAMETER Uri
+
+    The zabbix instance uri.
+
+    .PARAMETER Credential
+
+    Specifies a user account that has permission to the project.
+
+    .PARAMETER Proxy
+
+    Use a proxy server for the request, rather than connecting directly to the Internet resource. Enter the URI of a network proxy server.
+
+    .PARAMETER ProxyCredential
+
+    Specifie a user account that has permission to use the proxy server that is specified by the -Proxy parameter. The default is the current user.
+
+    .PARAMETER ApiVersion
+
+    Version of the api to use, defaults to 2.0.
+
+    .PARAMETER Path
+
+    The path where module data will be stored, defaults to $Script:ZabbixModuleDataPath.
+
     .PARAMETER Session
 
     The name of the Zabbix session.
+
+    .PARAMETER Force
+
+    Forces an update to the authorization token.
 
     .INPUTS
 
