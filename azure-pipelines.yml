@@ -46,4 +46,4 @@ stages:
                 inputs:
                   targetType: 'inline'
                   script: |
-                    Publish-Module -Path ".\ZabbixPS" -Repository 'PSGallery' -NuGetApiKey $env:PSGALLERY_APIKEY
+                    Publish-Module -Path ".\ZabbixPS" -Repository 'PSGallery' -NuGetApiKey $(PSGALLERY_APIKEY)
