@@ -15,7 +15,7 @@ pool:
 trigger:
   paths:
     exclude:
-      - ./README.md
+      - README.md
 
 stages:
   - stage:
