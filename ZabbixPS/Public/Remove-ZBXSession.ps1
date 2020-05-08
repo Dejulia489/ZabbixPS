@@ -1,4 +1,4 @@
-Function Remove-ZabbixSession
+function Remove-ZBXSession
 {
     <#
     .SYNOPSIS
@@ -20,7 +20,7 @@ Function Remove-ZabbixSession
 
     .INPUTS
 
-    PSObject. Get-ZabbixSession
+    PSObject. Get-ZBXSession
 
     .OUTPUTS
 
@@ -30,25 +30,26 @@ Function Remove-ZabbixSession
 
     Deletes a Zabbix session with the id of '2'.
 
-    Remove-ZabbixSession -Id 2
+    Remove-ZBXSession -Id 2
 
     .EXAMPLE
 
     Deletes all AP sessions in memory and stored on disk.
 
-    Remove-ZabbixSession
+    Remove-ZBXSession
 
     .LINK
 
     Zabbix documentation:
     https://www.zabbix.com/documentation/4.2/manual/api
 
-    New-ZabbixSession
-    Get-ZabbixSession
-    Save-ZabbixSession
-    Initialize-ZabbixSession
+    New-ZBXSession
+    Get-ZBXSession
+    Save-ZBXSession
+    Initialize-ZBXSession
     #>
     [CmdletBinding()]
+    [Alias("rzsess","dzsess")]
     param
     (
         [Parameter(Mandatory,
@@ -66,7 +67,7 @@ Function Remove-ZabbixSession
     }
     process
     {
-        $sessions = Get-ZabbixSession -Id $Id
+        $sessions = Get-ZBXSession -Id $Id
         foreach ($session in $sessions)
         {
             if ($session.Saved -eq $true)

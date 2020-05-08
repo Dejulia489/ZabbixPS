@@ -1,13 +1,13 @@
-﻿Function Get-ZabbixHistory
+﻿function Get-ZBXEvent
 {
     <#
     .SYNOPSIS
 
-    Returns a Zabbix history.
+    Returns a Zabbix event.
 
     .DESCRIPTION
 
-    Returns a Zabbix history.
+    Returns a Zabbix event.
 
     .PARAMETER Uri
 
@@ -27,26 +27,19 @@
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
-    .PARAMETER History
+    .PARAMETER EventId
 
-    History object types to return.
-    0 - numeric float;
-    1 - character;
-    2 - log;
-    3 - numeric unsigned;
-    4 - text.
-
-    Default: 3.
+    Return only events with the given IDs.
 
     .PARAMETER GroupId
 
-    Return only historys that use the given host groups in history conditions.
+    Return only events that use the given host groups in event conditions.
 
-    .PARAMETER ItemId
+    .PARAMETER HostId
 
-    Return only history from the given items.
+    Return only events that use the given hosts in event conditions.
 
     .INPUTS
 
@@ -54,25 +47,26 @@
 
     .OUTPUTS
 
-    PSObject. Zabbix history.
+    PSObject. Zabbix event.
 
     .EXAMPLE
 
-    Returns all Zabbix historys.
+    Returns all Zabbix events.
 
-    Get-ZabbixHistory
+    Get-ZBXEvent
 
     .EXAMPLE
 
-    Returns Zabbix History with the History name of 'myHistory'.
+    Returns Zabbix Event with the Event name of 'myEvent'.
 
-    Get-ZabbixHistory -Name 'myHistory'
+    Get-ZBXEvent -Name 'myEvent'
 
     .LINK
 
-    https://www.zabbix.com/documentation/4.2/manual/api/reference/history/get
+    https://www.zabbix.com/documentation/4.2/manual/api/reference/event/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+	[Alias("gze")]
     param
     (
         [Parameter(Mandatory,
@@ -98,9 +92,8 @@
         $Session,
 
         [Parameter()]
-        [ValidateSet(0, 1, 2, 3, 4)]
-        [int]
-        $History = 3,
+        [string[]]
+        $EventId,
 
         [Parameter()]
         [string[]]
@@ -108,14 +101,14 @@
 
         [Parameter()]
         [string[]]
-        $ItemId
+        $HostId
     )
 
     begin
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -130,29 +123,35 @@
     process
     {
         $body = @{
-            method  = 'history.get'
+            method  = 'event.get'
             jsonrpc = $ApiVersion
             id      = 1
 
             params  = @{
-                output  = 'extend'
-                history = $History
+                output                = 'extend'
+                select_acknowledges   = 'extend'
+                selectTags            = 'extend'
+                selectSuppressionData = 'extend'
             }
+        }
+        if ($EventId)
+        {
+            $body.params.eventids = $EventId
         }
         if ($GroupId)
         {
             $body.params.groupids = $GroupId
         }
-        if ($ItemId)
+        if ($HostId)
         {
-            $body.params.itemids = $ItemId
+            $body.params.hostids = $HostId
         }
         $invokeZabbixRestMethodSplat = @{
-            Body         = $body
-            Uri          = $Uri
-            Credential   = $Credential
-            ApiVersion   = $ApiVersion
-            ErrorHistory = 'Stop'
+            Body       = $body
+            Uri        = $Uri
+            Credential = $Credential
+            ApiVersion = $ApiVersion
+            ErrorEvent = 'Stop'
         }
         if ($Proxy)
         {
@@ -166,7 +165,7 @@
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

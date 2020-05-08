@@ -1,13 +1,13 @@
-function Remove-ZabbixAction
+﻿function Get-ZBXHistory
 {
     <#
     .SYNOPSIS
 
-    Removes a Zabbix action.
+    Returns a Zabbix history.
 
     .DESCRIPTION
 
-    Removes a Zabbix action.
+    Returns a Zabbix history.
 
     .PARAMETER Uri
 
@@ -27,11 +27,26 @@ function Remove-ZabbixAction
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
-	.PARAMETER Id
+    .PARAMETER History
 
-	The action id.
+    History object types to return.
+    0 - numeric float;
+    1 - character;
+    2 - log;
+    3 - numeric unsigned;
+    4 - text.
+
+    Default: 3.
+
+    .PARAMETER GroupId
+
+    Return only historys that use the given host groups in history conditions.
+
+    .PARAMETER ItemId
+
+    Return only history from the given items.
 
     .INPUTS
 
@@ -39,15 +54,26 @@ function Remove-ZabbixAction
 
     .OUTPUTS
 
-    PSObject, action ids that were removed.
+    PSObject. Zabbix history.
 
     .EXAMPLE
 
+    Returns all Zabbix historys.
+
+    Get-ZBXHistory
+
+    .EXAMPLE
+
+    Returns Zabbix History with the History name of 'myHistory'.
+
+    Get-ZBXHistory -Name 'myHistory'
+
     .LINK
 
-    https://www.zabbix.com/documentation/4.2/manual/api/reference/action/delete
+    https://www.zabbix.com/documentation/4.2/manual/api/reference/history/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+	[Alias("gzhist")]
     param
     (
         [Parameter(Mandatory,
@@ -72,16 +98,25 @@ function Remove-ZabbixAction
         [object]
         $Session,
 
-        [Parameter(Mandatory)]
+        [Parameter()]
+        [ValidateSet(0, 1, 2, 3, 4)]
         [int]
-        $Id
+        $History = 3,
+
+        [Parameter()]
+        [string[]]
+        $GroupId,
+
+        [Parameter()]
+        [string[]]
+        $ItemId
     )
 
     begin
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -96,18 +131,29 @@ function Remove-ZabbixAction
     process
     {
         $body = @{
-            method  = 'action.delete'
+            method  = 'history.get'
             jsonrpc = $ApiVersion
             id      = 1
 
-            params  = @($Id)
+            params  = @{
+                output  = 'extend'
+                history = $History
+            }
+        }
+        if ($GroupId)
+        {
+            $body.params.groupids = $GroupId
+        }
+        if ($ItemId)
+        {
+            $body.params.itemids = $ItemId
         }
         $invokeZabbixRestMethodSplat = @{
-            Body        = $body
-            Uri         = $Uri
-            Credential  = $Credential
-            ApiVersion  = $ApiVersion
-            ErrorAction = 'Stop'
+            Body         = $body
+            Uri          = $Uri
+            Credential   = $Credential
+            ApiVersion   = $ApiVersion
+            ErrorHistory = 'Stop'
         }
         if ($Proxy)
         {
@@ -121,7 +167,7 @@ function Remove-ZabbixAction
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

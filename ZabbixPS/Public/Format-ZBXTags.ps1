@@ -1,4 +1,4 @@
-function Format-ZabbixTags
+function Format-ZBXTags
 {
     <#
     .SYNOPSIS

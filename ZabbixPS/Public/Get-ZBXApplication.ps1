@@ -1,4 +1,4 @@
-﻿Function Get-ZabbixApplication
+﻿function Get-ZBXApplication
 {
     <#
     .SYNOPSIS
@@ -27,7 +27,7 @@
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
     .PARAMETER ApplicationId
 
@@ -53,19 +53,20 @@
 
     Returns all Zabbix applications.
 
-    Get-ZabbixApplication
+    Get-ZBXApplication
 
     .EXAMPLE
 
     Returns Zabbix Application with the Application name of 'myApplication'.
 
-    Get-ZabbixApplication -Name 'myApplication'
+    Get-ZBXApplication -Name 'myApplication'
 
     .LINK
 
     https://www.zabbix.com/documentation/4.2/manual/api/reference/application/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+	[Alias("gzapp")]
     param
     (
         [Parameter(Mandatory,
@@ -107,7 +108,7 @@
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -161,7 +162,7 @@
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

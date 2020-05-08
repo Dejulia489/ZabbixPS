@@ -1,13 +1,13 @@
-﻿Function Get-ZabbixAction
+﻿function Get-ZBXGraph
 {
     <#
     .SYNOPSIS
 
-    Returns a Zabbix action.
+    Returns a Zabbix graph.
 
     .DESCRIPTION
 
-    Returns a Zabbix action.
+    Returns a Zabbix graph.
 
     .PARAMETER Uri
 
@@ -27,23 +27,19 @@
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
-    .PARAMETER ActionId
+    .PARAMETER GraphId
 
-    Return only actions with the given IDs.
+    Return only graphs with the given IDs.
 
     .PARAMETER GroupId
 
-    Return only actions that use the given host groups in action conditions.
+    Return only graphs that use the given host groups in graph conditions.
 
     .PARAMETER HostId
 
-    Return only actions that use the given hosts in action conditions.
-
-    .PARAMETER TriggerId
-
-    Return only actions that use the given triggers in action conditions.
+    Return only graphs that use the given hosts in graph conditions.
 
     .INPUTS
 
@@ -51,25 +47,26 @@
 
     .OUTPUTS
 
-    PSObject. Zabbix action.
+    PSObject. Zabbix graph.
 
     .EXAMPLE
 
-    Returns all Zabbix actions.
+    Returns all Zabbix graphs.
 
-    Get-ZabbixAction
+    Get-ZBXGraph
 
     .EXAMPLE
 
-    Returns Zabbix Action with the Action name of 'myAction'.
+    Returns Zabbix Graph with the Graph name of 'myGraph'.
 
-    Get-ZabbixAction -Name 'myAction'
+    Get-ZBXGraph -Name 'myGraph'
 
     .LINK
 
-    https://www.zabbix.com/documentation/4.2/manual/api/reference/action/get
+    https://www.zabbix.com/documentation/4.2/manual/api/reference/graph/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+	[Alias("gzgph")]
     param
     (
         [Parameter(Mandatory,
@@ -96,7 +93,7 @@
 
         [Parameter()]
         [string[]]
-        $ActionId,
+        $GraphId,
 
         [Parameter()]
         [string[]]
@@ -104,18 +101,14 @@
 
         [Parameter()]
         [string[]]
-        $HostId,
-
-        [Parameter()]
-        [string[]]
-        $TriggerId
+        $HostId
     )
 
     begin
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -130,20 +123,17 @@
     process
     {
         $body = @{
-            method  = 'action.get'
+            method  = 'graph.get'
             jsonrpc = $ApiVersion
             id      = 1
 
             params  = @{
                 output                   = 'extend'
-                selectOperations         = 'extend'
-                selectRecoveryOperations = 'extend'
-                selectFilter             = 'extend'
             }
         }
-        if ($ActionId)
+        if ($GraphId)
         {
-            $body.params.actionids = $ActionId
+            $body.params.graphids = $GraphId
         }
         if ($GroupId)
         {
@@ -153,16 +143,12 @@
         {
             $body.params.hostids = $HostId
         }
-        if ($TriggerId)
-        {
-            $body.params.triggerids = $TriggerId
-        }
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
             Uri         = $Uri
             Credential  = $Credential
             ApiVersion  = $ApiVersion
-            ErrorAction = 'Stop'
+            ErrorGraph = 'Stop'
         }
         if ($Proxy)
         {
@@ -176,7 +162,7 @@
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

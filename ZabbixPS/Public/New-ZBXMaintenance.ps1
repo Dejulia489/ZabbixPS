@@ -1,4 +1,4 @@
-function New-ZabbixMaintenance
+function New-ZBXMaintenance
 {
     <#
     .SYNOPSIS
@@ -27,7 +27,7 @@ function New-ZabbixMaintenance
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
 	.PARAMETER Name
 
@@ -40,12 +40,12 @@ function New-ZabbixMaintenance
     .PARAMETER GroupId
 
     The id of the group.
-    Can be retrieved with Get-ZabbixGroup.
+    Can be retrieved with Get-ZBXGroup.
 
     .PARAMETER HostId
 
     The id of the host.
-    Can be retrieved with Get-ZabbixHost.
+    Can be retrieved with Get-ZBXHost.
 
     .PARAMETER Type
 
@@ -120,6 +120,7 @@ function New-ZabbixMaintenance
     https://www.zabbix.com/documentation/4.2/manual/api/reference/maintenance/create
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+	[Alias("nzm")]
     param
     (
         [Parameter(Mandatory,
@@ -209,7 +210,7 @@ function New-ZabbixMaintenance
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -259,7 +260,7 @@ function New-ZabbixMaintenance
         }
         if ($Tags)
         {
-            $body.params.tags = (Format-ZabbixTags -Tags $Tags)
+            $body.params.tags = (Format-ZBXTags -Tags $Tags)
         }
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
@@ -280,7 +281,7 @@ function New-ZabbixMaintenance
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

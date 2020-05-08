@@ -1,13 +1,13 @@
-function Remove-ZabbixMaintenance
+﻿function Get-ZBXHostGroup
 {
     <#
     .SYNOPSIS
 
-    Removes a Zabbix maintenance period.
+    Returns a Zabbix host group.
 
     .DESCRIPTION
 
-    Removes a Zabbix maintenance period.
+    Returns a Zabbix host group.
 
     .PARAMETER Uri
 
@@ -27,11 +27,23 @@ function Remove-ZabbixMaintenance
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
-	.PARAMETER Id
+    .PARAMETER Name
 
-	The maintenance id.
+    The name of the group.
+
+    .PARAMETER GroupId
+
+    Return only host group that use the given host groups in hostgroup conditions.
+
+    .PARAMETER MaintenanceId
+
+    Return only host groups that are affected by the given maintenances.
+
+    .PARAMETER TemplateId
+
+    Return only host groups that contain the given templates.
 
     .INPUTS
 
@@ -39,15 +51,26 @@ function Remove-ZabbixMaintenance
 
     .OUTPUTS
 
-    PSObject, maintenance ids that were removed.
+    PSObject. Zabbix hostgroup.
 
     .EXAMPLE
 
+    Returns all Zabbix host group.
+
+    Get-ZBXHostGroup
+
+    .EXAMPLE
+
+    Returns Zabbix HostGroup with the HostGroup name of 'myHostGroup'.
+
+    Get-ZBXHostGroup -Name 'myHostGroup'
+
     .LINK
 
-    https://www.zabbix.com/documentation/4.2/manual/api/reference/maintenance/delete
+    https://www.zabbix.com/documentation/4.2/manual/api/reference/hostgroup/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+    [Alias("gzhg", "Get-ZBXGroup")]
     param
     (
         [Parameter(Mandatory,
@@ -72,16 +95,32 @@ function Remove-ZabbixMaintenance
         [object]
         $Session,
 
-        [Parameter(Mandatory)]
-        [int]
-        $Id
+        [Parameter()]
+        [string[]]
+        $Name,
+
+        [Parameter()]
+        [string[]]
+        $GroupId,
+
+        [Parameter()]
+        [string[]]
+        $HostId,
+
+        [Parameter()]
+        [string[]]
+        $MaintenanceId,
+
+        [Parameter()]
+        [string[]]
+        $TemplateId
     )
 
     begin
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -96,11 +135,43 @@ function Remove-ZabbixMaintenance
     process
     {
         $body = @{
-            method  = 'maintenance.delete'
+            method  = 'hostgroup.get'
             jsonrpc = $ApiVersion
             id      = 1
 
-            params  = @($Id)
+            params  = @{
+                output          = 'extend'
+                selectHosts     = @(
+                    "hostid",
+                    "host"
+                )
+                selectTemplates = @(
+                    "templateid",
+                    "name"
+                )
+            }
+        }
+        if ($Name)
+        {
+            $body.params.filter = @{
+                name = $Name
+            }
+        }
+        if ($GroupId)
+        {
+            $body.params.groupids = $GroupId
+        }
+        if ($HostId)
+        {
+            $body.params.hostids = $HostId
+        }
+        if ($MaintenanceId)
+        {
+            $body.params.maintenanceids = $MaintenanceId
+        }
+        if ($TemplateId)
+        {
+            $body.params.templateids = $TemplateId
         }
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
@@ -121,7 +192,7 @@ function Remove-ZabbixMaintenance
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

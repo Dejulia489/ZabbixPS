@@ -1,4 +1,4 @@
-Function Initialize-ZabbixSession
+function Initialize-ZBXSession
 {
     <#
     .SYNOPSIS
@@ -57,10 +57,10 @@ Function Initialize-ZabbixSession
     Zabbix documentation:
     https://www.zabbix.com/documentation/4.2/manual/api
 
-    New-ZabbixSession
-    Get-ZabbixSession
-    Save-ZabbixSession
-    Remove-ZabbixSession
+    New-ZBXSession
+    Get-ZBXSession
+    Save-ZBXSession
+    Remove-ZBXSession
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
     param
@@ -104,7 +104,7 @@ Function Initialize-ZabbixSession
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -153,7 +153,17 @@ Function Initialize-ZabbixSession
                 }
             }
             Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Requesting an authentication token"
-            $results = Invoke-RestMethod @invokeRestMethodSplat
+            try
+            {
+                $results = Invoke-RestMethod @invokeRestMethodSplat
+            }
+            catch
+            {
+                If ($PSitem -match 'File not found')
+                {
+                    Write-Error "[$($MyInvocation.MyCommand.Name)]: Unable to locate the Zabbix api at: [$Uri], is this the correct uri? See: https://www.zabbix.com/documentation/4.2/manual/api for more information." -ErrorAction 'Stop'
+                }
+            }
             If ($results.result)
             {
                 $Global:_ZabbixAuthenticationToken = $results.result

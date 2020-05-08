@@ -1,13 +1,13 @@
-function Get-ZabbixMaintenance
+function Remove-ZBXAction
 {
     <#
     .SYNOPSIS
 
-    Gets a Zabbix maintenance period.
+    Removes a Zabbix action.
 
     .DESCRIPTION
 
-    Gets a Zabbix maintenance period.
+    Removes a Zabbix action.
 
     .PARAMETER Uri
 
@@ -27,15 +27,11 @@ function Get-ZabbixMaintenance
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
-
-    .PARAMETER Name
-
-    The maintenance name.
+    ZabbixPS session, created by New-ZBXSession.
 
 	.PARAMETER Id
 
-	The maintenance id.
+	The action id.
 
     .INPUTS
 
@@ -43,13 +39,13 @@ function Get-ZabbixMaintenance
 
     .OUTPUTS
 
-    None, does not support output.
+    PSObject, action ids that were removed.
 
     .EXAMPLE
 
     .LINK
 
-    https://www.zabbix.com/documentation/4.2/manual/api/reference/maintenance/delete
+    https://www.zabbix.com/documentation/4.2/manual/api/reference/action/delete
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
     param
@@ -76,12 +72,8 @@ function Get-ZabbixMaintenance
         [object]
         $Session,
 
-        [Parameter()]
-        [string]
-        $Name,
-
-        [Parameter()]
-        [string]
+        [Parameter(Mandatory)]
+        [int]
         $Id
     )
 
@@ -89,7 +81,7 @@ function Get-ZabbixMaintenance
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -104,26 +96,11 @@ function Get-ZabbixMaintenance
     process
     {
         $body = @{
-            method  = 'maintenance.get'
+            method  = 'action.delete'
             jsonrpc = $ApiVersion
             id      = 1
 
-            params  = @{
-                output            = "extend"
-                selectGroups      = "extend"
-                selectHosts       = "extend"
-                selectTimeperiods = "extend"
-            }
-        }
-        if ($Name)
-        {
-            $body.params.filter = @{
-                name = $Name
-            }
-        }
-        if ($Id)
-        {
-            $body.params.maintenanceids = $Id
+            params  = @($Id)
         }
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
@@ -144,7 +121,7 @@ function Get-ZabbixMaintenance
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

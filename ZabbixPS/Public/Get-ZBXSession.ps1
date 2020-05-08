@@ -1,4 +1,4 @@
-﻿Function Get-ZabbixSession
+﻿function Get-ZBXSession
 {
     <#
     .SYNOPSIS
@@ -8,7 +8,7 @@
     .DESCRIPTION
 
     Returns Zabbix session data that has been stored in the users local application data.
-    Use Save-ZabbixSession to persist the session data to disk.
+    Use Save-ZBXSession to persist the session data to disk.
     The sensetive data is returned encrypted.
 
     .PARAMETER Id
@@ -35,23 +35,23 @@
 
     Returns all Zabbix sessions from disk and memory.
 
-    Get-ZabbixSession
+    Get-ZBXSession
 
     .EXAMPLE
 
     Returns Zabbix session with the session name of 'myFirstSession'.
 
-    Get-ZabbixSession -Name 'myFirstSession'
+    Get-ZBXSession -Name 'myFirstSession'
 
     .LINK
 
     Zabbix documentation:
     https://www.zabbix.com/documentation/4.2/manual/api
 
-    New-ZabbixSession
-    Save-ZabbixSession
-    Remove-ZabbixSession
-    Initialize-ZabbixSession
+    New-ZBXSession
+    Save-ZBXSession
+    Remove-ZBXSession
+    Initialize-ZBXSession
     #>
     [CmdletBinding()]
     param
@@ -125,7 +125,14 @@
         {
             $_sessions = $_sessions | Where-Object { $PSItem.Name -eq $Name }
         }
-        return $_sessions
+        if ($_sessions)
+        {
+            return $_sessions        
+        }
+        else
+        {
+            Write-Error "[$($MyInvocation.MyCommand.Name)]: Unable to locate a ZabbixPS session."
+        }
     }
     end
     {

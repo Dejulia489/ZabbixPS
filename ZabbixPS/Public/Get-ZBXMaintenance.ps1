@@ -1,13 +1,13 @@
-﻿Function Get-ZabbixEvent
+function Get-ZBXMaintenance
 {
     <#
     .SYNOPSIS
 
-    Returns a Zabbix event.
+    Gets a Zabbix maintenance period.
 
     .DESCRIPTION
 
-    Returns a Zabbix event.
+    Gets a Zabbix maintenance period.
 
     .PARAMETER Uri
 
@@ -27,19 +27,15 @@
 
     .PARAMETER Session
 
-    ZabbixPS session, created by New-ZabbixSession.
+    ZabbixPS session, created by New-ZBXSession.
 
-    .PARAMETER EventId
+    .PARAMETER Name
 
-    Return only events with the given IDs.
+    The maintenance name.
 
-    .PARAMETER GroupId
+	.PARAMETER Id
 
-    Return only events that use the given host groups in event conditions.
-
-    .PARAMETER HostId
-
-    Return only events that use the given hosts in event conditions.
+	The maintenance id.
 
     .INPUTS
 
@@ -47,25 +43,16 @@
 
     .OUTPUTS
 
-    PSObject. Zabbix event.
+    None, does not support output.
 
     .EXAMPLE
-
-    Returns all Zabbix events.
-
-    Get-ZabbixEvent
-
-    .EXAMPLE
-
-    Returns Zabbix Event with the Event name of 'myEvent'.
-
-    Get-ZabbixEvent -Name 'myEvent'
 
     .LINK
 
-    https://www.zabbix.com/documentation/4.2/manual/api/reference/event/get
+    https://www.zabbix.com/documentation/4.2/manual/api/reference/maintenance/delete
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
+	[Alias("gzm")]
     param
     (
         [Parameter(Mandatory,
@@ -91,23 +78,19 @@
         $Session,
 
         [Parameter()]
-        [string[]]
-        $EventId,
+        [string]
+        $Name,
 
         [Parameter()]
-        [string[]]
-        $GroupId,
-
-        [Parameter()]
-        [string[]]
-        $HostId
+        [string]
+        $Id
     )
 
     begin
     {
         if ($PSCmdlet.ParameterSetName -eq 'BySession')
         {
-            $currentSession = $Session | Get-ZabbixSession
+            $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
             if ($currentSession)
             {
                 $Uri = $currentSession.Uri
@@ -122,35 +105,33 @@
     process
     {
         $body = @{
-            method  = 'event.get'
+            method  = 'maintenance.get'
             jsonrpc = $ApiVersion
             id      = 1
 
             params  = @{
-                output                = 'extend'
-                select_acknowledges   = 'extend'
-                selectTags            = 'extend'
-                selectSuppressionData = 'extend'
+                output            = "extend"
+                selectGroups      = "extend"
+                selectHosts       = "extend"
+                selectTimeperiods = "extend"
             }
         }
-        if ($EventId)
+        if ($Name)
         {
-            $body.params.eventids = $EventId
+            $body.params.filter = @{
+                name = $Name
+            }
         }
-        if ($GroupId)
+        if ($Id)
         {
-            $body.params.groupids = $GroupId
-        }
-        if ($HostId)
-        {
-            $body.params.hostids = $HostId
+            $body.params.maintenanceids = $Id
         }
         $invokeZabbixRestMethodSplat = @{
-            Body       = $body
-            Uri        = $Uri
-            Credential = $Credential
-            ApiVersion = $ApiVersion
-            ErrorEvent = 'Stop'
+            Body        = $body
+            Uri         = $Uri
+            Credential  = $Credential
+            ApiVersion  = $ApiVersion
+            ErrorAction = 'Stop'
         }
         if ($Proxy)
         {
@@ -164,7 +145,7 @@
                 $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
             }
         }
-        return Invoke-ZabbixRestMethod @invokeZabbixRestMethodSplat
+        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
     end

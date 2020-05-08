@@ -1,4 +1,4 @@
-Function New-ZabbixSession
+function New-ZBXSession
 {
     <#
     .SYNOPSIS
@@ -8,7 +8,7 @@ Function New-ZabbixSession
     .DESCRIPTION
 
     Creates a new Zabbix session.
-    Use Save-ZabbixSession to persist the session data to disk.
+    Use Save-ZBXSession to persist the session data to disk.
     Save the session to a variable to pass the session to other functions.
 
     .PARAMETER Name
@@ -51,19 +51,20 @@ Function New-ZabbixSession
 
     Creates a session with the name of 'myZabbixInstance' returning it to the $session variable.
 
-    $session = New-ZabbixSession -Uri 'http://myCompany/zabbix/api_jsonrpc.php' -Credential $creds -Name myZabbixInstance
+    $session = New-ZBXSession -Uri 'http://myCompany/zabbix/api_jsonrpc.php' -Credential $creds -Name myZabbixInstance
 
     .LINK
 
     Zabbix documentation:
     https://www.zabbix.com/documentation/4.2/manual/api
 
-    Remove-ZabbixSession
-    Get-ZabbixSession
-    Save-ZabbixSession
-    Initialize-ZabbixSession
+    Remove-ZBXSession
+    Get-ZBXSession
+    Save-ZBXSession
+    Initialize-ZBXSession
     #>
     [CmdletBinding()]
+    [Alias("Connect-ZBX","czab")]
     param
     (
         [Parameter(Mandatory)]
@@ -100,7 +101,7 @@ Function New-ZabbixSession
     }
     process
     {
-        [int] $_sessionIdcount = (Get-ZabbixSession | Sort-Object -Property 'Id' | Select-Object -Last 1 -ExpandProperty 'Id') + 1
+        [int] $_sessionIdcount = (Get-ZBXSession -ErrorAction 'SilentlyContinue' | Sort-Object -Property 'Id' | Select-Object -Last 1 -ExpandProperty 'Id') + 1
         $_session = New-Object -TypeName PSCustomObject -Property @{
             Uri        = $Uri
             Name       = $Name

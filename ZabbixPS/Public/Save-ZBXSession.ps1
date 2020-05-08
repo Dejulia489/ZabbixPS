@@ -1,4 +1,4 @@
-﻿Function Save-ZabbixSession
+﻿function Save-ZBXSession
 {
     <#
     .SYNOPSIS
@@ -13,7 +13,7 @@
 
     .PARAMETER Session
 
-    Zabbix session, created by New-ZabbixSession.
+    Zabbix session, created by New-ZBXSession.
 
     .PARAMETER Path
 
@@ -25,27 +25,27 @@
 
     .INPUTS
 
-    PSbject. Get-ZabbixSession, New-ZabbixSession
+    PSbject. Get-ZBXSession, New-ZBXSession
 
     .OUTPUTS
 
-    None. Save-ZabbixSession does not generate any output.
+    None. Save-ZBXSession does not generate any output.
 
     .EXAMPLE
 
     Creates a session with the name of 'myZabbixInstance' saving it to disk.
 
-    New-ZabbixSession -Uri 'http://myCompany/zabbix/api_jsonrpc.php' -Credential $creds -Name myZabbixInstance | Save-ZabbixSession
+    New-ZBXSession -Uri 'http://myCompany/zabbix/api_jsonrpc.php' -Credential $creds -Name myZabbixInstance | Save-ZBXSession
 
     .LINK
 
     Zabbix documentation:
     https://www.zabbix.com/documentation/4.2/manual/api
 
-    New-ZabbixSession
-    Get-ZabbixSession
-    Remove-ZabbixSession
-    Initialize-ZabbixSession
+    New-ZBXSession
+    Get-ZBXSession
+    Remove-ZBXSession
+    Initialize-ZBXSession
     #>
     [CmdletBinding()]
     param
@@ -102,7 +102,7 @@
                 $_object.ProxyCredential = $_proxyCredentialObject
             }
             $data.SessionData += $_object
-            $session | Remove-ZabbixSession -Path $Path
+            $session | Remove-ZBXSession -Path $Path
         }
     }
     end
