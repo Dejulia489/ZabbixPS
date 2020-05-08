@@ -54,7 +54,7 @@
     Initialize-ZabbixSession
     #>
     [CmdletBinding()]
-    Param
+    param
     (
         [Parameter(ValueFromPipeline,
             ValueFromPipelineByPropertyName)]
