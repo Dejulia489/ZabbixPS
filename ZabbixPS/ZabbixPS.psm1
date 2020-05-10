@@ -5,7 +5,6 @@ $Script:PSModuleRoot = $PSScriptRoot
 $Script:ModuleName = "ZabbixPS"
 $Script:AppDataPath = [Environment]::GetFolderPath('ApplicationData')
 $Script:ModuleDataRoot = (Join-Path -Path $Script:AppDataPath -ChildPath $Script:ModuleName)
-$Script:ModuleDataRoot = (Join-Path -Path ([Environment]::GetFolderPath('ApplicationData')) -ChildPath $Script:ModuleName)
 $Script:ZabbixModuleDataPath = (Join-Path -Path $Script:ModuleDataRoot -ChildPath "ModuleData.json")
 $folders = 'Private', 'Public'
 if (-not (Test-Path $Script:ModuleDataRoot)) { New-Item -ItemType Directory -Path $Script:ModuleDataRoot -Force }

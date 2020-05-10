@@ -52,7 +52,7 @@ task BuildModule @{
         [void] $sb.AppendLine('$Script:ModuleName = "ZabbixPS"')
         [void] $sb.AppendLine('$Script:AppDataPath = [Environment]::GetFolderPath(''ApplicationData'')')
         [void] $sb.AppendLine('$Script:ModuleDataRoot = (Join-Path -Path $Script:AppDataPath -ChildPath $Script:ModuleName)')
-        [void] $sb.AppendLine('$Script:ModuleDataPath = (Join-Path -Path $Script:ModuleDataRoot -ChildPath "ModuleData.json")')
+        [void] $sb.AppendLine('$Script:ZabbixModuleDataPath = (Join-Path -Path $Script:ModuleDataRoot -ChildPath "ModuleData.json")')
         [void] $sb.AppendLine('if (-not (Test-Path $Script:ModuleDataRoot)) {New-Item -ItemType Directory -Path $Script:ModuleDataRoot -Force}')
 
         foreach ($folder in $Folders)
