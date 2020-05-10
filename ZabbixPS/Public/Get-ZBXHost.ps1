@@ -282,10 +282,6 @@
             {
                 $invokeZabbixRestMethodSplat.ProxyCredential = $ProxyCredential
             }
-            else
-            {
-                $invokeZabbixRestMethodSplat.ProxyUseDefaultCredentials = $true
-            }
         }
         return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }

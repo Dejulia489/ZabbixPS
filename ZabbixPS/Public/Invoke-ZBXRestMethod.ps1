@@ -99,10 +99,6 @@ function Invoke-ZBXRestMethod
             {
                 $initializeZabbixSessionSplat.ProxyCredential = $ProxyCredential
             }
-            else
-            {
-                $initializeZabbixSessionSplat.ProxyUseDefaultCredentials = $true
-            }
         }
         $Body.auth = Initialize-ZBXSession @initializeZabbixSessionSplat
         $bodyJson = $Body | ConvertTo-Json -Depth 20
