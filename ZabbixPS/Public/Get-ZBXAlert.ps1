@@ -172,7 +172,7 @@
             Uri         = $Uri
             Credential  = $Credential
             ApiVersion  = $ApiVersion
-            ErrorAlert = 'Stop'
+            ErrorAction = 'Stop'
         }
         if ($Proxy)
         {

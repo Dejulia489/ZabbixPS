@@ -147,11 +147,11 @@
             $body.params.hostids = $HostId
         }
         $invokeZabbixRestMethodSplat = @{
-            Body       = $body
-            Uri        = $Uri
-            Credential = $Credential
-            ApiVersion = $ApiVersion
-            ErrorEvent = 'Stop'
+            Body        = $body
+            Uri         = $Uri
+            Credential  = $Credential
+            ApiVersion  = $ApiVersion
+            ErrorAction = 'Stop'
         }
         if ($Proxy)
         {
