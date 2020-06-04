@@ -69,7 +69,7 @@ Description = 'Functions for interacting with Zabbix'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Format-ZBXTags', 'Get-ZBXAction', 'Get-ZBXAlert', 'Get-ZBXApplication',
+FunctionsToExport = 'Confirm-ZBXEvent','Format-ZBXTags', 'Get-ZBXAction', 'Get-ZBXAlert', 'Get-ZBXApplication',
                'Get-ZBXEvent', 'Get-ZBXGraph', 'Get-ZBXHistory', 'Get-ZBXHost',
                'Get-ZBXHostGroup', 'Get-ZBXMaintenance', 'Get-ZBXProblem', 'Get-ZBXSession', 'Get-ZBXTemplate', 'Get-ZBXTrigger',
                'Initialize-ZBXSession', 'Invoke-ZBXRestMethod', 'New-ZBXMaintenance',
