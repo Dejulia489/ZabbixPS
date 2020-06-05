@@ -121,7 +121,19 @@ function Get-ZBXProblem
         [Parameter()]
         [Alias('applicationids')]
         [string[]]
-        $ApplicationId
+        $ApplicationId,
+
+        [Parameter()]
+        [Alias('acknowledged')]
+        [ValidateSet('true','false')]
+        [string]
+        $AcknowledgedProblem,
+
+        [Parameter()]
+        [Alias('suppressed')]
+        [ValidateSet('true','false')]
+        [string]
+        $SuppressedProblem
     )
 
     begin
@@ -157,7 +169,11 @@ function Get-ZBXProblem
             if ($Parameter.key -notin $SessionParameters -and $Parameter.key -notin $CommonParameters) {
                 #uses the hardcoded Alias of the parameter as the API friendly param
                 $apiParam = $MyInvocation.MyCommand.Parameters[$Parameter.key].Aliases[0]
-                $params[$apiParam] = $Parameter.Value
+                if ($Parameter.Value -in @('true','false')) {
+                    $params[$apiParam] = [system.convert]::ToBoolean($Parameter.Value)
+                } else {
+                    $params[$apiParam] = $Parameter.Value
+                }
             }
         }
 

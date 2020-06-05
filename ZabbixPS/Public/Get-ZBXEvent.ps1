@@ -132,6 +132,7 @@
                 select_acknowledges   = 'extend'
                 selectTags            = 'extend'
                 selectSuppressionData = 'extend'
+                selectHosts           = 'extend'
             }
         }
         if ($EventId)
