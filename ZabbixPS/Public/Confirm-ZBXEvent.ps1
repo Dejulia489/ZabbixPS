@@ -114,18 +114,18 @@ function Confirm-ZBXEvent
         [Alias('action')]
         [ValidateSet('CloseProblem','Acknowledge','AddMessage','ChangeSeverity')]
         [string[]]
-        $Action,
+        $AcknowledgeAction,
 
         [Parameter()]
         [Alias('message')]
         [string]
-        $Message,
+        $AcknowledgeMessage,
 
         [Parameter()]
         [Alias('severity')]
         [ValidateSet('NotClassified','Information','Warning','Average','High','Disaster')]
         [string]
-        $Severity
+        $NewSeverity
     )
 
     begin
@@ -171,9 +171,11 @@ function Confirm-ZBXEvent
                 #uses the hardcoded Alias of the parameter as the API friendly param
                 $apiParam = $MyInvocation.MyCommand.Parameters[$Parameter.key].Aliases[0]
                 switch ($apiParam) {
-                    'action'   { foreach ($value in $parameter.Value) {
-                                    $apiValue += $ActionValues[$value]
+                    'action'   { [int]$total = 0
+                                 foreach ($value in $parameter.Value) {
+                                    $total = $total + [int]$ActionValues[$value]
                                  }
+                                 $apiValue = $total
                                  break
                                }
                     'severity' { $apiValue = $SeverityValues[$Parameter.Value]; break }
