@@ -1,13 +1,13 @@
-﻿function Get-ZBXEvent
+function Get-ZBXProblem
 {
     <#
     .SYNOPSIS
 
-    Returns a Zabbix event.
+    Returns a Zabbix Problem.
 
     .DESCRIPTION
 
-    Returns a Zabbix event.
+    Returns a Zabbix Problem.
 
     .PARAMETER Uri
 
@@ -31,15 +31,23 @@
 
     .PARAMETER EventId
 
-    Return only events with the given IDs.
+    Return only problems with the given IDs.
 
     .PARAMETER GroupId
 
-    Return only events that use the given host groups in event conditions.
+    Return only problems that use the given host groups in problems conditions.
 
     .PARAMETER HostId
 
-    Return only events that use the given hosts in event conditions.
+    Return only problems that use the given hosts in problems conditions.
+
+    .PARAMETER ObjectId
+
+    Return only problems that have the given ObjectId in problems conditions.
+
+    .PARAMETER ApplicationId
+
+    Return only problems that have the given ApplicationId in problems conditions.
 
     .INPUTS
 
@@ -47,26 +55,25 @@
 
     .OUTPUTS
 
-    PSObject. Zabbix event.
+    PSObject. Zabbix problems.
 
     .EXAMPLE
 
-    Returns all Zabbix events.
+    Returns all Zabbix Problems.
 
-    Get-ZBXEvent
+    Get-ZBXProblem
 
     .EXAMPLE
 
-    Returns Zabbix Event with the Event name of 'myEvent'.
+    Returns Zabbix Problem from the HostID 10084.
 
-    Get-ZBXEvent -Name 'myEvent'
+    Get-ZBXProblem -Session $Session -HostId 10084
 
     .LINK
 
     https://www.zabbix.com/documentation/4.2/manual/api/reference/event/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
-	[Alias("gze")]
     param
     (
         [Parameter(Mandatory,
@@ -92,16 +99,41 @@
         $Session,
 
         [Parameter()]
+        [Alias('eventids')]
         [string[]]
         $EventId,
 
         [Parameter()]
+        [Alias('groupids')]
         [string[]]
         $GroupId,
 
         [Parameter()]
+        [Alias('hostids')]
         [string[]]
-        $HostId
+        $HostId,
+
+        [Parameter()]
+        [Alias('objectids')]
+        [string[]]
+        $ObjectId,
+
+        [Parameter()]
+        [Alias('applicationids')]
+        [string[]]
+        $ApplicationId,
+
+        [Parameter()]
+        [Alias('acknowledged')]
+        [ValidateSet('true','false')]
+        [string]
+        $AcknowledgedProblem,
+
+        [Parameter()]
+        [Alias('suppressed')]
+        [ValidateSet('true','false')]
+        [string]
+        $SuppressedProblem
     )
 
     begin
@@ -118,35 +150,36 @@
                 $ApiVersion = $currentSession.ApiVersion
             }
         }
+
+        $SessionParameters = @('Uri','Credential','Proxy','ProxyCredential','Session')
+        $CommonParameters = $(([System.Management.Automation.PSCmdlet]::CommonParameters,[System.Management.Automation.PSCmdlet]::OptionalCommonParameters) | ForEach-Object {$PSItem})
     }
 
     process
     {
-        $body = @{
-            method  = 'event.get'
-            jsonrpc = $ApiVersion
-            id      = 1
 
-            params  = @{
-                output                = 'extend'
-                select_acknowledges   = 'extend'
-                selectTags            = 'extend'
-                selectSuppressionData = 'extend'
-                selectHosts           = 'extend'
+        $params  = @{
+            output                = 'extend'
+            select_acknowledges   = 'extend'
+            selectTags            = 'extend'
+        }
+
+        #Dynamically adds any bound parameters that are used for the conditions
+        foreach ($Parameter in $PSBoundParameters.GetEnumerator()){
+            if ($Parameter.key -notin $SessionParameters -and $Parameter.key -notin $CommonParameters) {
+                #uses the hardcoded Alias of the parameter as the API friendly param
+                $apiParam = $MyInvocation.MyCommand.Parameters[$Parameter.key].Aliases[0]
+                if ($Parameter.Value -in @('true','false')) {
+                    $params[$apiParam] = [system.convert]::ToBoolean($Parameter.Value)
+                } else {
+                    $params[$apiParam] = $Parameter.Value
+                }
             }
         }
-        if ($EventId)
-        {
-            $body.params.eventids = $EventId
-        }
-        if ($GroupId)
-        {
-            $body.params.groupids = $GroupId
-        }
-        if ($HostId)
-        {
-            $body.params.hostids = $HostId
-        }
+
+        $body = New-ZBXRestBody -Method 'problem.get' -API $ApiVersion -Params $params
+
+
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
             Uri         = $Uri
@@ -162,10 +195,7 @@
                 $invokeZabbixRestMethodSplat.ProxyCredential = $ProxyCredential
             }
         }
-        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
+        Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
-    end
-    {
-    }
 }

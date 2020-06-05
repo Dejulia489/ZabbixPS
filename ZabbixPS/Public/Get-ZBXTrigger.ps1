@@ -1,13 +1,13 @@
-﻿function Get-ZBXEvent
+function Get-ZBXTrigger
 {
     <#
     .SYNOPSIS
 
-    Returns a Zabbix event.
+    Returns a Zabbix Trigger.
 
     .DESCRIPTION
 
-    Returns a Zabbix event.
+    Returns a Zabbix Trigger.
 
     .PARAMETER Uri
 
@@ -29,17 +29,25 @@
 
     ZabbixPS session, created by New-ZBXSession.
 
-    .PARAMETER EventId
+    .PARAMETER TriggerId
 
-    Return only events with the given IDs.
+    Return only Triggers with the given IDs.
 
     .PARAMETER GroupId
 
-    Return only events that use the given host groups in event conditions.
+    Return only Triggers that use the given host groups.
 
     .PARAMETER HostId
 
-    Return only events that use the given hosts in event conditions.
+    Return only Triggers that use the given hosts.
+
+    .PARAMETER TemplateId
+
+    Return only Triggers that belong to given templates.
+
+    .PARAMETER ApplicationId
+
+    Return only triggers that contain items from the given applications.
 
     .INPUTS
 
@@ -47,26 +55,25 @@
 
     .OUTPUTS
 
-    PSObject. Zabbix event.
+    PSObject. Zabbix Triggers.
 
     .EXAMPLE
 
-    Returns all Zabbix events.
+    Returns all Zabbix Triggers.
 
-    Get-ZBXEvent
+    Get-ZBXTrigger
 
     .EXAMPLE
 
-    Returns Zabbix Event with the Event name of 'myEvent'.
+    Returns Zabbix Trigger from the HostID 10084.
 
-    Get-ZBXEvent -Name 'myEvent'
+    Get-ZBXTrigger -Session $Session -HostId 10084
 
     .LINK
 
     https://www.zabbix.com/documentation/4.2/manual/api/reference/event/get
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
-	[Alias("gze")]
     param
     (
         [Parameter(Mandatory,
@@ -92,16 +99,29 @@
         $Session,
 
         [Parameter()]
+        [Alias('triggerids')]
         [string[]]
-        $EventId,
+        $TriggerId,
 
         [Parameter()]
+        [Alias('groupids')]
         [string[]]
         $GroupId,
 
         [Parameter()]
+        [Alias('hostids')]
         [string[]]
-        $HostId
+        $HostId,
+
+        [Parameter()]
+        [Alias('templateids')]
+        [string[]]
+        $TemplateId,
+
+        [Parameter()]
+        [Alias('applicationids')]
+        [string[]]
+        $ApplicationId
     )
 
     begin
@@ -118,35 +138,31 @@
                 $ApiVersion = $currentSession.ApiVersion
             }
         }
+
+        $SessionParameters = @('Uri','Credential','Proxy','ProxyCredential','Session')
+        $CommonParameters = $(([System.Management.Automation.PSCmdlet]::CommonParameters,[System.Management.Automation.PSCmdlet]::OptionalCommonParameters) | ForEach-Object {$PSItem})
     }
 
     process
     {
-        $body = @{
-            method  = 'event.get'
-            jsonrpc = $ApiVersion
-            id      = 1
 
-            params  = @{
-                output                = 'extend'
-                select_acknowledges   = 'extend'
-                selectTags            = 'extend'
-                selectSuppressionData = 'extend'
-                selectHosts           = 'extend'
+        $params  = @{
+            output                = 'extend'
+            selectTags            = 'extend'
+        }
+
+        #Dynamically adds any bound parameters that are used for the conditions
+        foreach ($Parameter in $PSBoundParameters.GetEnumerator()){
+            if ($Parameter.key -notin $SessionParameters -and $Parameter.key -notin $CommonParameters) {
+                #uses the hardcoded Alias of the parameter as the API friendly param
+                $apiParam = $MyInvocation.MyCommand.Parameters[$Parameter.key].Aliases[0]
+                $params[$apiParam] = $Parameter.Value
             }
         }
-        if ($EventId)
-        {
-            $body.params.eventids = $EventId
-        }
-        if ($GroupId)
-        {
-            $body.params.groupids = $GroupId
-        }
-        if ($HostId)
-        {
-            $body.params.hostids = $HostId
-        }
+
+        $body = New-ZBXRestBody -Method 'trigger.get' -API $ApiVersion -Params $params
+
+
         $invokeZabbixRestMethodSplat = @{
             Body        = $body
             Uri         = $Uri
@@ -162,10 +178,7 @@
                 $invokeZabbixRestMethodSplat.ProxyCredential = $ProxyCredential
             }
         }
-        return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
+        Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
-    end
-    {
-    }
 }
