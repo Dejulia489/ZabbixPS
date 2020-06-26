@@ -82,6 +82,18 @@ function New-ZBXMaintenance
 
 	The maintenance time period's start date. Required only for one time period, defaults to current date.
 
+    .PARAMETER TpEvery
+
+    For daily and weekly periods every defines day or week intervals at which the maintenance must come into effect.
+
+    For monthly periods every defines the week of the month when the maintenance must come into effect.
+    Possible values:
+    1 - first week;
+    2 - second week;
+    3 - third week;
+    4 - fourth week;
+    5 - last week.
+    
     .PARAMETER TpDay
 
     Day of the month when the maintenance must come into effect
@@ -120,7 +132,7 @@ function New-ZBXMaintenance
     https://www.zabbix.com/documentation/4.2/manual/api/reference/maintenance/create
     #>
     [CmdletBinding(DefaultParameterSetName = 'ByCredential')]
-	[Alias("nzm")]
+    [Alias("nzm")]
     param
     (
         [Parameter(Mandatory,
@@ -195,6 +207,10 @@ function New-ZBXMaintenance
 
         [Parameter()]
         [int]
+        $TpEvery,
+
+        [Parameter()]
+        [int]
         $TpDayOfWeek,
 
         [Parameter()]
@@ -232,16 +248,15 @@ function New-ZBXMaintenance
             params  = @{
                 name             = $Name
                 description      = $Description
-                active_since     = [Math]::Floor([decimal](Get-Date($ActiveSince).ToUniversalTime()-uformat "%s"))
-                active_till      = [Math]::Floor([decimal](Get-Date($ActiveTill).ToUniversalTime()-uformat "%s"))
+                active_since     = [Math]::Floor([decimal](Get-Date($ActiveSince).ToUniversalTime()-UFormat "%s"))
+                active_till      = [Math]::Floor([decimal](Get-Date($ActiveTill).ToUniversalTime()-UFormat "%s"))
                 maintenance_type = $Type
                 timeperiods      = @(
                     @{
                         timeperiod_type = $TpType
-                        start_date      = [Math]::Floor([decimal](Get-Date($TpStartDate).ToUniversalTime()-uformat "%s"))
+                        start_date      = [Math]::Floor([decimal](Get-Date($TpStartDate).ToUniversalTime()-UFormat "%s"))
                         period          = $TpPeriod
 
-                        every           = $TpEvery
                         start_time      = $TpStartTime
                         month           = $TpMonth
                         dayofweek       = $TpDayOfWeek
@@ -249,6 +264,10 @@ function New-ZBXMaintenance
                     }
                 )
             }
+        }
+        if ($TpEvery)
+        {
+            $body.params.timeperiods.every = $TpEvery
         }
         if ($GroupId)
         {
