@@ -119,6 +119,7 @@ function Initialize-ZBXSession
     {
         if ($Global:_ZabbixAuthenticationToken -and (-not($Force.IsPresent)))
         {
+            Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Defaulting to `$Global:_ZabbixAuthenticationToken"
             return $Global:_ZabbixAuthenticationToken
         }
         else
