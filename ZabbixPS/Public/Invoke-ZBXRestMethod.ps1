@@ -136,6 +136,10 @@ function Invoke-ZBXRestMethod
             {
                 Write-Error "[$($MyInvocation.MyCommand.Name)]: Unable to locate the Zabbix api at: [$Uri], is this the correct uri? See: https://www.zabbix.com/documentation/4.2/manual/api for more information." -ErrorAction 'Stop'
             }
+            else
+            {
+                $PSitem | Write-Error
+            }
         }
         if ($results.result)
         {
