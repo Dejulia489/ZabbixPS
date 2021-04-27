@@ -55,4 +55,4 @@ stages:
                   targetType: 'inline'
                   script: |
                     dir env:
-                    Publish-Module -Path "$(AGENT.BUILDDIRECTORY)\Artifacts\$(MODULE_NAME)" -Repository 'PSGallery' -NuGetApiKey '$(PSGALLERY_APIKEY)''
+                    Publish-Module -Path "$(AGENT.BUILDDIRECTORY)\Artifacts\$(MODULE_NAME)" -Repository 'PSGallery' -NuGetApiKey '$(PSGALLERY_APIKEY)'
