@@ -1,7 +1,7 @@
 # Powershell Module Pipeline
 
 # Module version
-name: 0.0.$(rev:r)
+name: 0.1.$(rev:r)
 
 # Build variables
 variables:
