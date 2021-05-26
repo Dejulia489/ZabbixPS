@@ -152,7 +152,7 @@ function Get-ZBXUserGroup {
                     'with_gui_access' { $apiValue = $AuthMethodValues[$Parameter.Value]; break }
                     default { $apiValue = $Parameter.Value }
                 }
-                $params[$apiParam] = $Parameter.Value
+                $params[$apiParam] = $apiValue
             }
         }
 
