@@ -3,7 +3,11 @@ param()
 
 $Script:PSModuleRoot = $PSScriptRoot
 $Script:ModuleName = "ZabbixPS"
-$Script:AppDataPath = [Environment]::GetFolderPath('ApplicationData')
+if ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
+    $Script:AppDataPath = [Environment]::GetFolderPath('ApplicationData')
+} else {
+    $Script:AppDataPath = '/tmp'
+}
 $Script:ModuleDataRoot = (Join-Path -Path $Script:AppDataPath -ChildPath $Script:ModuleName)
 $Script:ZabbixModuleDataPath = (Join-Path -Path $Script:ModuleDataRoot -ChildPath "ModuleData.json")
 $folders = 'Private', 'Public'
