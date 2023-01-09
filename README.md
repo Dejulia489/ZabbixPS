@@ -35,7 +35,7 @@ Install the module
 ##### Authors
 
 Michael Dejulia
-
+Samuel Hudnall
 #### Based on:
 
 - [psbbix](https://github.com/yubu/psbbix-zabbix-api) by yubu
