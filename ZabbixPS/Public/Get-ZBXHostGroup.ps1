@@ -145,10 +145,11 @@
                     "hostid",
                     "host"
                 )
-                selectTemplates = @(
-                    "templateid",
-                    "name"
-                )
+# as of 6.2 removed
+#                selectTemplates = @(
+#                    "templateid",
+#                    "name"
+#                )
             }
         }
         if ($Name)
@@ -171,7 +172,8 @@
         }
         if ($TemplateId)
         {
-            $body.params.templateids = $TemplateId
+# Ignoring as 6.2 removed
+#            $body.params.templateids = $TemplateId
         }
         $invokeZabbixRestMethodSplat = @{
             Body        = $body

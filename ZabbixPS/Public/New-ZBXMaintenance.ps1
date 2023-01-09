@@ -256,11 +256,11 @@ function New-ZBXMaintenance
                         timeperiod_type = $TpType
                         start_date      = [Math]::Floor([decimal](Get-Date($TpStartDate).ToUniversalTime()-UFormat "%s"))
                         period          = $TpPeriod
-
-                        start_time      = $TpStartTime
-                        month           = $TpMonth
-                        dayofweek       = $TpDayOfWeek
-                        day             = $TpDay
+                     # Does not work as of 6.2
+                     #   start_time      = $TpStartTime
+                     #   month           = $TpMonth
+                     #   dayofweek       = $TpDayOfWeek
+                     #   day             = $TpDay
                     }
                 )
             }
