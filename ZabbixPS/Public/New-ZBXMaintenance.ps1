@@ -1,5 +1,4 @@
-function New-ZBXMaintenance
-{
+function New-ZBXMaintenance {
     <#
     .SYNOPSIS
 
@@ -222,13 +221,10 @@ function New-ZBXMaintenance
         $TpPeriod
     )
 
-    begin
-    {
-        if ($PSCmdlet.ParameterSetName -eq 'BySession')
-        {
+    begin {
+        if ($PSCmdlet.ParameterSetName -eq 'BySession') {
             $currentSession = $Session | Get-ZBXSession -ErrorAction 'Stop' | Select-Object -First 1
-            if ($currentSession)
-            {
+            if ($currentSession) {
                 $Uri = $currentSession.Uri
                 $Credential = $currentSession.Credential
                 $Proxy = $currentSession.Proxy
@@ -238,8 +234,7 @@ function New-ZBXMaintenance
         }
     }
 
-    process
-    {
+    process {
         $body = @{
             method  = 'maintenance.create'
             jsonrpc = $ApiVersion
@@ -248,37 +243,40 @@ function New-ZBXMaintenance
             params  = @{
                 name             = $Name
                 description      = $Description
-                active_since     = [Math]::Floor([decimal](Get-Date($ActiveSince).ToUniversalTime()-UFormat "%s"))
-                active_till      = [Math]::Floor([decimal](Get-Date($ActiveTill).ToUniversalTime()-UFormat "%s"))
+                active_since     = (Get-Date($ActiveSince).ToUniversalTime()-UFormat "%s")
+                active_till      = (Get-Date($ActiveTill).ToUniversalTime()-UFormat "%s")
                 maintenance_type = $Type
                 timeperiods      = @(
                     @{
                         timeperiod_type = $TpType
-                        start_date      = [Math]::Floor([decimal](Get-Date($TpStartDate).ToUniversalTime()-UFormat "%s"))
+                        #start_date      = (Get-Date($TpStartDate).ToUniversalTime()-UFormat "%s")
                         period          = $TpPeriod
-                     # Does not work as of 6.2
-                     #   start_time      = $TpStartTime
-                     #   month           = $TpMonth
-                     #   dayofweek       = $TpDayOfWeek
-                     #   day             = $TpDay
                     }
                 )
             }
         }
-        if ($TpEvery)
-        {
+        if ($PSBoundParameters.ContainsKey('TpEvery')) {
             $body.params.timeperiods.every = $TpEvery
         }
-        if ($GroupId)
-        {
+        if ($PSBoundParameters.ContainsKey('TpStartTime')) {
+            $body.params.timeperiods.start_time = $TpStartTime
+        }
+        if ($PSBoundParameters.ContainsKey('TpMonth')) {
+            $body.params.timeperiods.month = $TpMonth
+        }
+        if ($PSBoundParameters.ContainsKey('TpDayOfWeek')) {
+            $body.params.timeperiods.dayofweek = $TpDayOfWeek
+        }
+        if ($PSBoundParameters.ContainsKey('TpDay')) {
+            $body.params.timeperiods.day = $TpDay
+        }
+        if ($GroupId) {
             $body.params.groupids = $GroupId
         }
-        if ($HostId)
-        {
+        if ($HostId) {
             $body.params.hostids = $HostId
         }
-        if ($Tags)
-        {
+        if ($Tags) {
             $body.params.tags = (Format-ZBXTags -Tags $Tags)
         }
         $invokeZabbixRestMethodSplat = @{
@@ -288,18 +286,15 @@ function New-ZBXMaintenance
             ApiVersion  = $ApiVersion
             ErrorAction = 'Stop'
         }
-        if ($Proxy)
-        {
+        if ($Proxy) {
             $invokeZabbixRestMethodSplat.Proxy = $Proxy
-            if ($ProxyCredential)
-            {
+            if ($ProxyCredential) {
                 $invokeZabbixRestMethodSplat.ProxyCredential = $ProxyCredential
             }
         }
         return Invoke-ZBXRestMethod @invokeZabbixRestMethodSplat
     }
 
-    end
-    {
+    end {
     }
 }

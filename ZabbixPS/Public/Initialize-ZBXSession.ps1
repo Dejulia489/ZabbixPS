@@ -128,7 +128,7 @@ function Initialize-ZBXSession
                 jsonrpc = $ApiVersion
                 method  = 'user.login'
                 params  = @{
-                    user     = $Credential.Username
+                    username     = $Credential.Username
                     password = $Credential.GetNetworkCredential().password
                 }
                 id      = 1
