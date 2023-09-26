@@ -243,8 +243,7 @@ function New-ZBXMaintenance {
             params  = @{
                 name             = $Name
                 description      = $Description
-                active_since     = (Get-Date($ActiveSince).ToUniversalTime()-UFormat "%s")
-                active_till      = (Get-Date($ActiveTill).ToUniversalTime()-UFormat "%s")
+ 
                 maintenance_type = $Type
                 timeperiods      = @(
                     @{
@@ -254,6 +253,14 @@ function New-ZBXMaintenance {
                     }
                 )
             }
+        }
+        if ($PSVersionTable.PSVersion.Major -ge 7) {
+            $body.params.active_since = (Get-Date($ActiveSince).ToUniversalTime()-UFormat "%s")
+            $body.params.active_till = (Get-Date($ActiveTill).ToUniversalTime()-UFormat "%s")
+        }
+        Else {
+            $body.params.active_since = [Math]::Floor([int](Get-Date($ActiveSince).ToUniversalTime()-UFormat "%s"))
+            $body.params.active_till = [Math]::Floor([int](Get-Date($ActiveTill).ToUniversalTime()-UFormat "%s"))
         }
         if ($PSBoundParameters.ContainsKey('TpEvery')) {
             $body.params.timeperiods.every = $TpEvery
